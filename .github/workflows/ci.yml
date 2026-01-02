@@ -1,41 +1,42 @@
-name: CI - Train and sava the model
+name: CI - Train and save the model
 
 on:
-    push:
-        branches:[ main ]
-    pull_request:
-        branches:[ main ]
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-    matrix-pip:
-        name: Train and sava the model
-        runs-on: ubuntu-latest
-        strategy:
-          matrix:
-            python: [3.12, 3.14]
+  matrix-pip:
+    name: Train and save the model
+    runs-on: ubuntu-latest
 
-steps:
-    -name: Checkout
-    uses: actions/Checkout@v6
+    strategy:
+      matrix:
+        python: [3.12, 3.13]
 
-    -name: Setup python
-    uses: actions/setup-python@v4
-    with:
-        pyhton-vesrion : ${{ matrix.python }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-     -name: Upgrade pip
-     run: python -m pip install --upgrade  pip setuptools wheel
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
 
-     -name: Install project dependancies
-     run: python -m pip install -r requirements.txt
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip setuptools wheel
 
-     -name: Train the model
-     run:
-        python train.python
-        ls -la artifacts
+      - name: Install project dependencies
+        run: python -m pip install -r requirements.txt
 
-      -name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: ml-artifacts-${{ matrix.python }}-{{ github.run_id }}
-        path: artifacts
+      - name: Train the model
+        run: |
+          python train.py
+          ls -la artifacts
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ml-artifacts-${{ matrix.python }}-${{ github.run_id }}
+          path: artifacts
